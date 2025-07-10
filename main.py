@@ -23,24 +23,26 @@ app = FastAPI(title="Lakeshore Model240 API",
               version="1.0.0",
               lifespan=lifespan)
 
+
 def get_module(request: Request) -> Model240:
     module = getattr(request.app.state, "module", None)
     if module is None:
         raise HTTPException(503, "Model240 not connected")
     return module
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
 
 
 # GET methods for Model240----------------------------------------------------------------------------
 
 @app.get("/id", response_model=IdentificationResp)
 async def get_id(request: Request, device: Model240 = Depends(get_module)):
-    async with request.app.state.lock:    
+    async with request.app.state.lock:
         return device.get_identification()
+
 
 @app.get("/input/{channel}", response_model=InputParameter)
 async def get_inputparameter(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
@@ -50,10 +52,12 @@ async def get_inputparameter(request: Request, channel: int = Path(..., ge=1, le
                 **input_param,
                 'filter': device.get_filter(channel)}
 
+
 @app.get("/curve_header/{channel}", response_model=CurveHeader)
 async def get_curve_header(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
         return device.get_curve_header(channel).__dict__
+
 
 @app.get("/monitor/{channel}", response_model=MonitorResp)
 async def get_monitor(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
@@ -67,11 +71,13 @@ async def get_monitor(request: Request, channel: int = Path(..., ge=1, le=8, des
                 'kelvin': kelvin,
                 'sensor': sensor}
 
+
 @app.get("/status/{channel}", response_model=StatusResp)
 async def get_status(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
         return device.get_channel_reading_status(channel)
-    
+
+
 @app.get("/curve_data_point/{channel}/{index}", response_model=CurveDataPoint)
 async def get_curve_data_point(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), index: int = Path(..., ge=1, le=200, description="Index of the data point in the curve"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
@@ -80,11 +86,13 @@ async def get_curve_data_point(request: Request, channel: int = Path(..., ge=1, 
             temperature=float(temp),
             sensor=float(sensor)
         )
-    
+
+
 @app.get("/curve_data_points/{channel}/all", response_model=CurveDataPoints)
 async def get_curve_data_points_all(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
-        raw_data = [device.get_curve_data_point(channel, i).split(',') for i in range(1, 201)]
+        raw_data = [device.get_curve_data_point(
+            channel, i).split(',') for i in range(1, 201)]
         sensors = [dp[0] for dp in raw_data]
         temperatures = [dp[1] for dp in raw_data]
         return CurveDataPoints(
@@ -104,7 +112,6 @@ async def get_curve_data_points_all(request: Request, channel: int = Path(..., g
 #         except Exception as e:
 #             print("Faile to get :", e)
 #         return {"brightness": brightness}
-    
 
 
 # POST methods for Model240----------------------------------------------------------------------------
@@ -117,6 +124,7 @@ async def connect(request: Request):
         except Exception as e:
             raise HTTPException(503, f"Connect failed: {e}")
     return {"message": "Connected"}
+
 
 @app.put("/disconnect")
 async def disconnect(request: Request):
@@ -147,7 +155,8 @@ async def set_input_config(request: Request, input_param: InputParameter, channe
             return {"message": "Input configuration updated"}
         except Exception as e:
             raise HTTPException(503, f"Update failed: {e}")
-    
+
+
 @app.put("/curve_header/{channel}/config")
 async def set_curve_header(request: Request, curve_header: CurveHeader, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
@@ -164,14 +173,16 @@ async def set_curve_header(request: Request, curve_header: CurveHeader, channel:
         except Exception as e:
             raise HTTPException(503, f"Update failed: {e}")
 
+
 @app.put("/id/{channel}/config")
-async def set_id(request: Request, modname: str, device: Model240 = Depends(get_module)):
+async def set_id(request: Request, modname: str,  channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
         try:
             device.set_modname(modname)
             return {"message": "Modname updated"}
         except Exception as e:
             raise HTTPException(503, f"Update failed: {e}")
+
 
 @app.put("/brightness/config")
 async def set_brightness(request: Request, brightness: Brightness, device: Model240 = Depends(get_module)):
@@ -184,11 +195,13 @@ async def set_brightness(request: Request, brightness: Brightness, device: Model
         except Exception as e:
             raise HTTPException(503, f"Update failed: {e}")
 
+
 @app.put("/curve_data_point/{channel}/{index}")
 async def set_curve_data_point(request: Request, data_point: CurveDataPoint, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), index: int = Path(..., ge=1, le=200, description="Index of the data point in the curve"), device: Model240 = Depends(get_module)):
     async with request.app.state.lock:
         try:
-            device.set_curve_data_point(channel, index, data_point.sensor, data_point.temperature)
+            device.set_curve_data_point(
+                channel, index, data_point.sensor, data_point.temperature)
             return {"message": "Curve data point updated"}
         except Exception as e:
             raise HTTPException(503, f"Update failed: {e}")

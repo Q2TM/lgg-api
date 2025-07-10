@@ -4,11 +4,12 @@ version = "0.1.0"
 description = ""
 authors = ["Q2TM"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.8"
 lakeshore = "^1.8.1"
-fastapi = {extras = ["standard"], version = "^0.115.14"}
+fastapi = { extras = ["standard"], version = "^0.115.14" }
 
 
 [build-system]
