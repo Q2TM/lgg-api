@@ -11,7 +11,7 @@ def get_curve_header(request: Request, channel: int = Path(..., ge=1, le=8, desc
 
 @router.put("/header/{channel}/config")
 def set_curve_header(request: Request, curve_header: CurveHeader, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), ls: LakeshoreService = Depends(get_lakeshore_service)):
-    return ls.set_curve_header(request, channel, curve_header)
+    return ls.set_curve_header(request, curve_header, channel)
 
 @router.get("/data-point/{channel}/{index}", response_model=CurveDataPoint)
 def get_curve_data_point(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), index: int = Path(..., ge=1, le=200, description="Index of the data point in the curve"), ls: LakeshoreService = Depends(get_lakeshore_service)):
@@ -23,4 +23,4 @@ def get_curve_data_points(request: Request, channel: int = Path(..., ge=1, le=8,
 
 @router.put("/data-point/{channel}/{index}", response_model=CurveDataPoint)
 async def set_curve_data_point(request: Request, data_point: CurveDataPoint, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), index: int = Path(..., ge=1, le=200, description="Index of the data point in the curve"),  ls: LakeshoreService = Depends(get_lakeshore_service)):
-    return ls.set_curve_data_point(request, channel, index, data_point)
+    return ls.set_curve_data_point(request, data_point, channel, index)

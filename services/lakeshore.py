@@ -69,7 +69,7 @@ class LakeshoreService:
     def set_input_config(self, request: Request, input_param: InputParameter, channel: int):
         with request.app.state.lock:
             try:
-                self.ls_repo.set_input_config(channel, input_param)
+                self.ls_repo.set_input_config(input_param, channel)
                 return {"message": "Input configuration updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
@@ -100,7 +100,7 @@ class LakeshoreService:
     def set_curve_header(self, request: Request, curve_header: CurveHeader, channel: int):
         with request.app.state.lock:
             try:
-                self.ls_repo.set_curve_header(channel, curve_header)
+                self.ls_repo.set_curve_header(curve_header, channel)
                 return {"message": "Curve header updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
@@ -109,7 +109,7 @@ class LakeshoreService:
     def set_curve_data_point(self, request: Request, data_point: CurveDataPoint, channel: int, index: int):
         with request.app.state.lock:
             try:
-                self.ls_repo.set_curve_data_point(channel, index, data_point.sensor, data_point.temperature)
+                self.ls_repo.set_curve_data_point(data_point, channel, index)
                 return {"message": "Curve data point updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
