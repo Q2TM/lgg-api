@@ -8,10 +8,9 @@ from schemas.lakeshore import CurveDataPoint, InputParameter, MonitorResp, Curve
 from exceptions.lakeshore import DeviceNotConnectedError, ChannelError
 
 
-
-
 class LakeshoreRepository:
-    device: Model240 = None
+    device: Model240 | None = None
+
     def __new__(cls):
         """Singleton pattern to ensure only one instance of LakeshoreService exists."""
         if not hasattr(cls, '_instance'):
@@ -32,7 +31,7 @@ class LakeshoreRepository:
             LakeshoreRepository.device.disconnect_usb()
             LakeshoreRepository.device = None
         print("Device disconnected")
-        
+
     @asynccontextmanager
     @staticmethod
     async def lifespan(app: FastAPI):
@@ -100,8 +99,8 @@ class LakeshoreRepository:
         kelvin = device.get_kelvin_reading(channel)
         sensor = device.get_sensor_reading(channel)
         return MonitorResp(
-            celsius=celsius,
-            fahrenheit=farenheit,
+            celsius=float(celsius),
+            fahrenheit=float(farenheit),
             kelvin=kelvin,
             sensor=sensor
         )
@@ -110,14 +109,14 @@ class LakeshoreRepository:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        return device.get_curve_header(channel).__dict__
+        return CurveHeader(**device.get_curve_header(channel).__dict__)
 
     def get_curve_data_point(self, channel: int, index: int) -> CurveDataPoint:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        sensor, temp = device.get_curve_data_point(
-            channel, index).split(',')
+        sensor, temp = str(device.get_curve_data_point(
+            channel, index)).split(',')
         return CurveDataPoint(
             temperature=float(temp),
             sensor=float(sensor)
@@ -133,8 +132,8 @@ class LakeshoreRepository:
         temperatures = [dp[1] for dp in raw_data]
         return CurveDataPoints(
             channel=channel,
-            temperatures=temperatures,
-            sensors=sensors
+            temperatures=list(map(float, temperatures)),
+            sensors=list(map(float, sensors))
         )
 
     def set_curve_header(self, curve_header: CurveHeader, channel: int):

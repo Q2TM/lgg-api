@@ -24,7 +24,7 @@ app.add_middleware(
 # Include API routes
 app.include_router(router_v1)
 
-ls.device = MockModel240()
+ls.device = MockModel240()  # type: ignore
 
 if __name__ == "__main__":
     import uvicorn
