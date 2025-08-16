@@ -1,18 +1,11 @@
-[tool.poetry]
+[project]
 name = "lgg-api"
 version = "0.1.0"
-description = ""
-authors = ["Q2TM"]
+description = "Add your description here"
 readme = "README.md"
-package-mode = false
-
-[tool.poetry.dependencies]
-python = "^3.13"
-lakeshore = "^1.8.1"
-fastapi = { extras = ["standard"], version = "^0.115.14" }
-uvicorn = "^0.35.0"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "lakeshore>=1.8.1",
+    "uvicorn>=0.35.0",
+]
