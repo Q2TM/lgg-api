@@ -1,8 +1,9 @@
+# type: ignore
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple, List
 from lakeshore.model_240_enums import Model240Enums
 
-from lakeshore.model_240 import Model240InputParameter
+# from lakeshore.model_240 import Model240InputParameter
 
 @dataclass
 class MockInputParameter:

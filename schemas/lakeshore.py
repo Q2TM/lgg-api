@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
-from lakeshore.model_240_enums import Model240Enums
+from lakeshore.model_240_enums import Model240Enums # type: ignore
 
 class IdentificationResp(BaseModel):
     """Schema for the `/id` endpoint."""
@@ -9,7 +8,7 @@ class IdentificationResp(BaseModel):
     model: str = Field(..., alias="model")     
     serial_number: str = Field(..., alias="serial number")
     firmware_version: str = Field(..., alias="firmware version")
-    modname: Optional[str] = Field(None, alias="modname")
+    modname: str | None = Field(None, alias="modname")
 
 class MonitorResp(BaseModel):
     """Schema for the `/monitor/{channel}` endpoint."""
@@ -22,14 +21,14 @@ class MonitorResp(BaseModel):
 class InputParameter(BaseModel):
     """Schema for the `/input/{channel}` endpoint."""
     
-    sensor_name: Optional[str] = None  # Optional field for sensor name, can be None if not set
+    sensor_name: str | None = None  # Optional field for sensor name, can be None if not set
     sensor_type: Model240Enums.SensorTypes
     temperature_unit: Model240Enums.Units
     auto_range_enable: bool
     current_reversal_enable: bool
     input_enable: bool
     input_range: int
-    filter: Optional[str] = None  # Optional field for filter, can be None if not applicable
+    filter: str | None = None  # Optional field for filter, can be None if not applicable
 
 
 class CurveHeader(BaseModel):

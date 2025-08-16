@@ -1,9 +1,10 @@
-from lakeshore import Model240, Model240InputParameter, Model240CurveHeader
 from contextlib import asynccontextmanager
 from threading import Lock
 from fastapi import FastAPI
+from lakeshore import Model240, Model240InputParameter, Model240CurveHeader # type: ignore 
 
-
+from typing import Self, cast
+from collections.abc import AsyncGenerator
 from schemas.lakeshore import CurveDataPoint, InputParameter, MonitorResp, CurveDataPoints, CurveHeader
 from exceptions.lakeshore import DeviceNotConnectedError, ChannelError
 
@@ -11,20 +12,20 @@ from exceptions.lakeshore import DeviceNotConnectedError, ChannelError
 class LakeshoreRepository:
     device: Model240 | None = None
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         """Singleton pattern to ensure only one instance of LakeshoreService exists."""
         if not hasattr(cls, '_instance'):
             cls._instance = super().__new__(cls)
         return cls._instance
 
     @staticmethod
-    def connect():
+    def connect() -> None:
         """Connect to the Model240 device."""
         if LakeshoreRepository.device is None:
             LakeshoreRepository.device = Model240()
 
     @staticmethod
-    def disconnect():
+    def disconnect() -> None:
         """Disconnect from the Model240 device."""
         if LakeshoreRepository.device:
             print("Disconnecting Model240")
@@ -34,47 +35,47 @@ class LakeshoreRepository:
 
     @asynccontextmanager
     @staticmethod
-    async def lifespan(app: FastAPI):
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         """Lifespan context manager to handle application startup and shutdown."""
         app.state.lock = Lock()
         yield
         LakeshoreRepository.disconnect()
 
     @staticmethod
-    def get_device():
+    def get_device() -> Model240:
         if not LakeshoreRepository.device:
             raise DeviceNotConnectedError()
         return LakeshoreRepository.device
 
-    def get_status(self, channel: int):
+    def get_status(self, channel: int) -> dict[str, str]:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        return device.get_channel_reading_status(channel)
+        return device.get_channel_reading_status(channel) # type: ignore
 
-    def get_identification(self):
+    def get_identification(self) -> dict[str, str]:
         device = self.get_device()
-        return device.get_identification()
+        return device.get_identification() # type: ignore
 
     def get_input_parameter(self, channel: int) -> InputParameter:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        input_param = device.get_input_parameter(channel).__dict__
+        input_param = device.get_input_parameter(channel).__dict__ # type: ignore
         print(input_param)
-        return InputParameter(sensor_name=device.get_sensor_name(channel), **input_param, filter=device.get_filter(channel))
+        return InputParameter(sensor_name=device.get_sensor_name(channel), **input_param, filter=device.get_filter(channel)) # type: ignore
 
-    def set_modname(self, modname: str):
+    def set_modname(self, modname: str) -> None:
         device = self.get_device()
-        device.set_modname(modname)
+        device.set_modname(modname) # type: ignore
 
-    def set_brightness(self, brightness: int):
+    def set_brightness(self, brightness: int) -> None:
         if brightness < 0 or brightness > 100:
             raise ValueError("Brightness must be between 0 and 100")
         device = self.get_device()
-        device.set_brightness(brightness)
+        device.set_brightness(brightness) # type: ignore
 
-    def set_input_config(self, input_param: InputParameter, channel: int):
+    def set_input_config(self, input_param: InputParameter, channel: int) -> None:
         device = self.get_device()
         inp: Model240InputParameter = Model240InputParameter(
             sensor=input_param.sensor_type,
@@ -84,23 +85,23 @@ class LakeshoreRepository:
             input_enable=input_param.input_enable,
             input_range=input_param.input_range
         )
-        device.set_input_parameter(channel, inp)
+        device.set_input_parameter(channel, inp) # type: ignore
         if input_param.filter is not None:
-            device.set_filter(channel, input_param.filter)
+            device.set_filter(channel, input_param.filter) # type: ignore
         if input_param.sensor_name is not None:
-            device.set_sensor_name(channel, input_param.sensor_name)
+            device.set_sensor_name(channel, input_param.sensor_name) # type: ignore
 
     def get_monitor(self, channel: int) -> MonitorResp:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        celsius = device.get_celsius_reading(channel)
-        farenheit = device.get_fahrenheit_reading(channel)
-        kelvin = device.get_kelvin_reading(channel)
-        sensor = device.get_sensor_reading(channel)
+        celsius = device.get_celsius_reading(channel) # type: ignore
+        farenheit = device.get_fahrenheit_reading(channel) # type: ignore
+        kelvin = device.get_kelvin_reading(channel) # type: ignore
+        sensor = device.get_sensor_reading(channel) # type: ignore
         return MonitorResp(
-            celsius=float(celsius),
-            fahrenheit=float(farenheit),
+            celsius=cast(float, celsius),
+            fahrenheit=cast(float, farenheit),
             kelvin=kelvin,
             sensor=sensor
         )
@@ -109,14 +110,14 @@ class LakeshoreRepository:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        return CurveHeader(**device.get_curve_header(channel).__dict__)
+        return CurveHeader(**device.get_curve_header(channel).__dict__) # type: ignore
 
     def get_curve_data_point(self, channel: int, index: int) -> CurveDataPoint:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        sensor, temp = str(device.get_curve_data_point(
-            channel, index)).split(',')
+        sensor, temp = str(device.get_curve_data_point( # type: ignore
+            channel, index)).split(',') 
         return CurveDataPoint(
             temperature=float(temp),
             sensor=float(sensor)
@@ -126,7 +127,7 @@ class LakeshoreRepository:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        raw_data = [device.get_curve_data_point(
+        raw_data: str = [device.get_curve_data_point( # type: ignore
             channel, i).split(',') for i in range(1, 201)]
         sensors = [dp[0] for dp in raw_data]
         temperatures = [dp[1] for dp in raw_data]
@@ -136,7 +137,7 @@ class LakeshoreRepository:
             sensors=list(map(float, sensors))
         )
 
-    def set_curve_header(self, curve_header: CurveHeader, channel: int):
+    def set_curve_header(self, curve_header: CurveHeader, channel: int) -> None:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
@@ -147,11 +148,11 @@ class LakeshoreRepository:
             temperature_limit=curve_header.temperature_limit,
             coefficient=curve_header.coefficient
         )
-        device.set_curve_header(channel, curve_header_resp)
+        device.set_curve_header(channel, curve_header_resp) # type: ignore
 
-    def set_curve_data_point(self, data_point: CurveDataPoint, channel: int, index: int):
+    def set_curve_data_point(self, data_point: CurveDataPoint, channel: int, index: int) -> None:
         if not 1 <= channel <= 8:
             raise ChannelError(channel)
         device = self.get_device()
-        device.set_curve_data_point(
+        device.set_curve_data_point( # type: ignore
             channel, index, data_point.sensor, data_point.temperature)
