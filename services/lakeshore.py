@@ -1,12 +1,12 @@
 from fastapi import HTTPException, Request
-from repositories.lakeshore import LakeshoreRepository 
+from repositories.lakeshore import LakeshoreRepository
 from schemas.lakeshore import CurveDataPoint, InputParameter, MonitorResp, CurveDataPoints, CurveHeader
 from typing import Self
 
 
 class LakeshoreService:
     __slots__ = ('ls_repo')
-    
+
     def __new__(cls) -> Self:
         """Singleton pattern, only one instance of LakeshoreService exists."""
         if not hasattr(cls, '_instance'):
@@ -19,7 +19,7 @@ class LakeshoreService:
             self.ls_repo = LakeshoreRepository()
 
     def connect(self) -> dict[str, str]:
-        try:       
+        try:
             self.ls_repo.connect()
         except Exception as e:
             raise HTTPException(503, f"Connect failed: {e}")
@@ -29,8 +29,8 @@ class LakeshoreService:
         self.ls_repo.disconnect()
         return {"status": "disconnected"}
 
-
     # =========== Device Methods ===========
+
     def get_identification(self) -> dict[str, str]:
         return self.ls_repo.get_identification()
 
@@ -45,7 +45,6 @@ class LakeshoreService:
                 return {"message": "Modname updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
-            
 
     def set_brightness(self, request: Request, brightness: int) -> dict[str, str]:
         with request.app.state.lock:
@@ -62,7 +61,6 @@ class LakeshoreService:
         with request.app.state.lock:
             return self.ls_repo.get_input_parameter(channel)
 
-
     def set_input_config(self, request: Request, input_param: InputParameter, channel: int) -> dict[str, str]:
         with request.app.state.lock:
             try:
@@ -71,12 +69,9 @@ class LakeshoreService:
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
 
-
     def get_monitor(self, request: Request, channel: int) -> MonitorResp:
         with request.app.state.lock:
             return self.ls_repo.get_monitor(channel)
-            
-            
 
     # =========== Curve Methods ===========
 
@@ -84,15 +79,13 @@ class LakeshoreService:
         with request.app.state.lock:
             return self.ls_repo.get_curve_header(channel)
 
-
     def get_curve_data_point(self, request: Request, channel: int, index: int) -> CurveDataPoint:
         with request.app.state.lock:
-            return self.ls_repo.get_curve_data_point(channel, index)    
-     
+            return self.ls_repo.get_curve_data_point(channel, index)
+
     def get_curve_data_points(self, request: Request, channel: int) -> CurveDataPoints:
         with request.app.state.lock:
             return self.ls_repo.get_curve_data_points(channel)
-            
 
     def set_curve_header(self, request: Request, curve_header: CurveHeader, channel: int) -> dict[str, str]:
         with request.app.state.lock:
@@ -101,7 +94,6 @@ class LakeshoreService:
                 return {"message": "Curve header updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
-            
 
     def set_curve_data_point(self, request: Request, data_point: CurveDataPoint, channel: int, index: int) -> dict[str, str]:
         with request.app.state.lock:
@@ -110,4 +102,3 @@ class LakeshoreService:
                 return {"message": "Curve data point updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
-

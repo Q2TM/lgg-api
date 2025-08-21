@@ -5,6 +5,7 @@ from lakeshore.model_240_enums import Model240Enums
 
 # from lakeshore.model_240 import Model240InputParameter
 
+
 @dataclass
 class MockInputParameter:
     sensor_type: Model240Enums.SensorTypes
@@ -23,16 +24,19 @@ class MockCurveHeader:
     temperature_limit: float
     coefficient: Model240Enums.Coefficients
 
+
 class MockModel240:
     """Mock implementation of Lakeshore Model240 for testing."""
-    
+
     def __init__(self):
         """Initialize mock device with default values."""
         self.connected = True
         self.modname = "Mock Model240"
         self.brightness = 50
-        self._sensor_names: Dict[int, str] = {i: f"Sensor {i}" for i in range(1, 9)}
-        self._filters: Dict[int, Optional[str]] = {i: "No filter" for i in range(1, 9)}
+        self._sensor_names: Dict[int, str] = {
+            i: f"Sensor {i}" for i in range(1, 9)}
+        self._filters: Dict[int, Optional[str]] = {
+            i: "No filter" for i in range(1, 9)}
         self._readings: Dict[int, Tuple[float, float, float, float]] = {
             i: (25.0, 77.0, 298.15, 100.0) for i in range(1, 9)
         }  # (celsius, fahrenheit, kelvin, sensor)
@@ -43,8 +47,8 @@ class MockModel240:
                 auto_range_enable=True,
                 current_reversal_enable=False,
                 input_enable=True,
-                input_range=1 
-                
+                input_range=1
+
             ) for i in range(1, 9)
         }
         self._curve_headers: Dict[int, MockCurveHeader] = {
