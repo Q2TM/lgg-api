@@ -38,6 +38,10 @@ class LakeshoreService:
         with request.app.state.lock:
             return self.ls_repo.get_status(channel)
 
+    def get_modname(self, request: Request) -> str:
+        with request.app.state.lock:
+            return self.ls_repo.get_modname()
+
     def set_modname(self, request: Request, modname: str) -> dict[str, str]:
         with request.app.state.lock:
             try:
@@ -45,6 +49,14 @@ class LakeshoreService:
                 return {"message": "Modname updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
+
+    def get_brightness(self, request: Request):
+        while request.app.state.lock:
+            try:
+                brightness = self.ls_repo.get_brightness()
+                return {"brightness": brightness}
+            except Exception as e:
+                raise HTTPException(503, f"Get brightness failed: {e}")
 
     def set_brightness(self, request: Request, brightness: int) -> dict[str, str]:
         with request.app.state.lock:

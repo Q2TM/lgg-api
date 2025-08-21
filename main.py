@@ -35,7 +35,7 @@ async def lakeshore_exception_handler(request: Request, exc: LakeshoreError) -> 
 app.include_router(router_v1)
 
 # Mock set device, ( set up connection with mock )
-ls.device = MockModel240()  # type: ignore
+# ls.device = MockModel240()  # type: ignore
 
 if __name__ == "__main__":
     import uvicorn

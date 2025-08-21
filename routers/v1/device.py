@@ -21,7 +21,7 @@ def get_identification(ls: LakeshoreService = Depends(get_lakeshore_service)) ->
     return ls.get_identification()
 
 
-@router.get("/status/{channel}", response_model=StatusResp)
+@router.get("/{channel}/status", response_model=StatusResp)
 def get_status(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"),  ls: LakeshoreService = Depends(get_lakeshore_service)):
     return ls.get_status(request, channel)
 
@@ -30,11 +30,21 @@ def get_status(request: Request, channel: int = Path(..., ge=1, le=8, descriptio
 #     return channel_id
 
 
+@router.get("/module_name")
+def get_modname(request: Request, ls: LakeshoreService = Depends(get_lakeshore_service)) -> str:
+    return ls.get_modname(request)
+
+
 @router.post("/module_name")
 def set_modname(request: Request, name: str, ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_modname(request, name)
 
 
-@router.post("/brightness/config")
+@router.get("/brightness")
+def get_brightness(request: Request, ls: LakeshoreService = Depends(get_lakeshore_service)):
+    return ls.get_brightness(request)
+
+
+@router.post("/brightness")
 def set_brightness(request: Request, brightness: int, ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_brightness(request, brightness)

@@ -67,9 +67,28 @@ class LakeshoreRepository:
         # type: ignore
         return InputParameter(sensor_name=device.get_sensor_name(channel), **input_param, filter=device.get_filter(channel))
 
+    def get_modname(self) -> str:
+        device = self.get_device()
+        return device.get_modname()
+
     def set_modname(self, modname: str) -> None:
         device = self.get_device()
-        device.set_modname(modname)  # type: ignore
+        device.set_modname(modname)
+
+    def get_brightness(self) -> int:
+        device = self.get_device()
+        brightness = int(device.query("BRIGT?"))
+        if brightness == 0:
+            return 0
+        if brightness == 1:
+            return 25
+        if brightness == 2:
+            return 50
+        if brightness == 3:
+            return 75
+        if brightness == 4:
+            return 100
+        raise ValueError("Invalid brightness level")
 
     def set_brightness(self, brightness: int) -> None:
         if brightness < 0 or brightness > 100:

@@ -11,7 +11,7 @@ def get_input_parameter(request: Request, channel: int = Path(..., ge=1, le=8, d
     return ls.get_input_parameter(request, channel)
 
 
-@router.post("/input/{channel}/config")
+@router.post("/input/{channel}")
 def set_input_config(request: Request, input_param: InputParameter, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_input_config(request, input_param, channel)
 

@@ -1,7 +1,11 @@
 # lgg-api
-API server that reads and saves configuration to lakeshore.
+
+API server that manages Lakeshore devices.
+
+Currently supported: Model 240-8P
 
 Run
+
 ```bash
-fastapi dev main.py
+uv run main.py
 ```
