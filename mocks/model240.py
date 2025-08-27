@@ -78,6 +78,9 @@ class MockModel240:
             "modname": self.modname
         }
 
+    def get_modname(self):
+        return self.modname
+
     def set_modname(self, modname: str):
         """Set the device modname."""
         self.modname = modname

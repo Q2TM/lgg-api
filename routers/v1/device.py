@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, Request, Path
+from fastapi import APIRouter, Depends, Request, Path, HTTPException
 from schemas.lakeshore import IdentificationResp, StatusResp
+from schemas.operations import OperationResult
 from services.lakeshore import LakeshoreService
 from routers.dependencies import get_lakeshore_service
 
@@ -7,8 +8,16 @@ router = APIRouter()
 
 
 @router.post("/connect")
-def connect(ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
-    return ls.connect()
+def connect(ls: LakeshoreService = Depends(get_lakeshore_service)) -> OperationResult:
+    result = ls.connect()
+
+    if result:
+        return OperationResult(
+            is_success=result,
+            message="Connected to Lakeshore Model240"
+        )
+    else:
+        return OperationResult(is_success=False)
 
 
 @router.post("/disconnect")
@@ -35,7 +44,7 @@ def get_modname(request: Request, ls: LakeshoreService = Depends(get_lakeshore_s
     return ls.get_modname(request)
 
 
-@router.post("/module_name")
+@router.put("/module_name")
 def set_modname(request: Request, name: str, ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_modname(request, name)
 
@@ -45,6 +54,14 @@ def get_brightness(request: Request, ls: LakeshoreService = Depends(get_lakeshor
     return ls.get_brightness(request)
 
 
-@router.post("/brightness")
+@router.put("/brightness")
 def set_brightness(request: Request, brightness: int, ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_brightness(request, brightness)
+
+
+# Missing endpoints that return 501 Not Implemented
+@router.delete("/factory-defaults")
+def set_factory_defaults():
+    """Reset to factory defaults - Not implemented"""
+    raise HTTPException(
+        status_code=501, detail="Factory reset not implemented")

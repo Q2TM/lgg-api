@@ -18,12 +18,12 @@ class LakeshoreService:
         if not hasattr(self, 'ls_repo'):
             self.ls_repo = LakeshoreRepository()
 
-    def connect(self) -> dict[str, str]:
+    def connect(self) -> bool:
         try:
             self.ls_repo.connect()
         except Exception as e:
             raise HTTPException(503, f"Connect failed: {e}")
-        return {"message": "Connected"}
+        return True
 
     def disconnect(self) -> dict[str, str]:
         self.ls_repo.disconnect()

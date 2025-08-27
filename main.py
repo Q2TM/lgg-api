@@ -4,7 +4,6 @@ from fastapi.responses import JSONResponse
 
 from routers import router_v1
 from repositories.lakeshore import LakeshoreRepository as ls
-from mocks.model240 import MockModel240
 from exceptions.lakeshore import LakeshoreError
 
 app = FastAPI(
@@ -33,9 +32,6 @@ async def lakeshore_exception_handler(request: Request, exc: LakeshoreError) -> 
 
 
 app.include_router(router_v1)
-
-# Mock set device, ( set up connection with mock )
-# ls.device = MockModel240()  # type: ignore
 
 if __name__ == "__main__":
     import uvicorn

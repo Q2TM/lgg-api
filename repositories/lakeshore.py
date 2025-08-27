@@ -1,7 +1,11 @@
 from contextlib import asynccontextmanager
 from threading import Lock
 from fastapi import FastAPI
-from lakeshore import Model240, Model240InputParameter, Model240CurveHeader  # type: ignore
+from lakeshore import Model240, Model240InputParameter, Model240CurveHeader
+import os
+
+from constants.env import USE_MOCK
+from mocks.model240 import MockModel240
 
 from typing import Self, cast
 from collections.abc import AsyncGenerator
@@ -19,10 +23,17 @@ class LakeshoreRepository:
         return cls._instance
 
     @staticmethod
-    def connect() -> None:
+    def connect() -> bool:
         """Connect to the Model240 device."""
         if LakeshoreRepository.device is None:
-            LakeshoreRepository.device = Model240()
+            if os.getenv(USE_MOCK):
+                print("Using MockModel240")
+                LakeshoreRepository.device = MockModel240()  # type: ignore
+            else:
+                LakeshoreRepository.device = Model240()
+            return True
+
+        return False
 
     @staticmethod
     def disconnect() -> None:

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Path
+from fastapi import APIRouter, Depends, HTTPException, Request, Path
 from services.lakeshore import LakeshoreService
 from schemas.lakeshore import CurveHeader, CurveDataPoint, CurveDataPoints
 from routers.dependencies import get_lakeshore_service
@@ -11,7 +11,7 @@ def get_curve_header(request: Request, channel: int = Path(..., ge=1, le=8, desc
     return ls.get_curve_header(request, channel)
 
 
-@router.post("/{channel}/header")
+@router.put("/{channel}/header")
 def set_curve_header(request: Request, curve_header: CurveHeader, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_curve_header(request, curve_header, channel)
 
@@ -26,6 +26,12 @@ def get_curve_data_points(request: Request, channel: int = Path(..., ge=1, le=8,
     return ls.get_curve_data_points(request, channel)
 
 
-@router.post("/{channel}/data-point/{index}", response_model=CurveDataPoint)
+@router.put("/{channel}/data-point/{index}")
 async def set_curve_data_point(request: Request, data_point: CurveDataPoint, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"), index: int = Path(..., ge=1, le=200, description="Index of the data point in the curve"),  ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_curve_data_point(request, data_point, channel, index)
+
+
+@router.delete("/{channel}")
+def delete_curve(channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8")):
+    """Delete user curve - Not implemented"""
+    raise HTTPException(status_code=501, detail="Delete curve not implemented")
