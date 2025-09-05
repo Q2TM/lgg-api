@@ -5,7 +5,7 @@ from services.lakeshore import LakeshoreService
 from schemas.reading import InputParameter
 from routers.dependencies import get_lakeshore_service
 
-router = APIRouter()
+router = APIRouter(prefix="/reading")
 
 
 @router.get("/input/{channel}", response_model=InputParameter)
@@ -27,7 +27,7 @@ def set_input_config(
     return ls.set_input_config(request, input_param, channel)
 
 
-@router.get("/{channel}", response_model=MonitorResp)
+@router.get("/monitor/{channel}", response_model=MonitorResp)
 def get_monitor(
     request: Request,
     channel: int = ChannelQueryParam,

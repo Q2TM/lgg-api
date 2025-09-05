@@ -6,7 +6,7 @@ from schemas.shared import ChannelQueryParam
 from services.lakeshore import LakeshoreService
 from routers.dependencies import get_lakeshore_service
 
-router = APIRouter()
+router = APIRouter(prefix="/device")
 
 
 @router.post("/connect")
@@ -32,7 +32,7 @@ def get_identification(ls: LakeshoreService = Depends(get_lakeshore_service)) ->
     return ls.get_identification()
 
 
-@router.get("/{channel}/status", response_model=StatusResp)
+@router.get("/status/{channel}", response_model=StatusResp)
 def get_status(
         request: Request,
         channel: int = ChannelQueryParam,
@@ -44,12 +44,12 @@ def get_status(
 #     return channel_id
 
 
-@router.get("/module_name")
+@router.get("/module-name")
 def get_modname(request: Request, ls: LakeshoreService = Depends(get_lakeshore_service)) -> str:
     return ls.get_modname(request)
 
 
-@router.put("/module_name")
+@router.put("/module-name")
 def set_modname(request: Request, name: str, ls: LakeshoreService = Depends(get_lakeshore_service)) -> dict[str, str]:
     return ls.set_modname(request, name)
 
