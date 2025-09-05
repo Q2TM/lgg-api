@@ -9,8 +9,10 @@ from mocks.model240 import MockModel240
 
 from typing import Self, cast
 from collections.abc import AsyncGenerator
-from schemas.lakeshore import CurveDataPoint, InputParameter, MonitorResp, CurveDataPoints, CurveHeader
+from schemas.curve import CurveDataPoint, CurveHeader
+from schemas.curve import CurveDataPoints
 from exceptions.lakeshore import DeviceNotConnectedError, ChannelError
+from schemas.reading import InputParameter, MonitorResp
 
 
 class LakeshoreRepository:

@@ -1,7 +1,10 @@
 from fastapi import HTTPException, Request
 from repositories.lakeshore import LakeshoreRepository
-from schemas.lakeshore import CurveDataPoint, InputParameter, MonitorResp, CurveDataPoints, CurveHeader
+from schemas.curve import CurveDataPoint, CurveHeader
+from schemas.curve import CurveDataPoints
 from typing import Self
+
+from schemas.reading import InputParameter, MonitorResp
 
 
 class LakeshoreService:

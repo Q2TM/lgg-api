@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, Request, Path, HTTPException
-from schemas.lakeshore import IdentificationResp, StatusResp
+from fastapi import APIRouter, Depends, Request, HTTPException
+from schemas.device import IdentificationResp
+from schemas.device import StatusResp
 from schemas.operations import OperationResult
+from schemas.shared import ChannelQueryParam
 from services.lakeshore import LakeshoreService
 from routers.dependencies import get_lakeshore_service
 
@@ -31,7 +33,10 @@ def get_identification(ls: LakeshoreService = Depends(get_lakeshore_service)) ->
 
 
 @router.get("/{channel}/status", response_model=StatusResp)
-def get_status(request: Request, channel: int = Path(..., ge=1, le=8, description="Channel must be between 1 and 8"),  ls: LakeshoreService = Depends(get_lakeshore_service)):
+def get_status(
+        request: Request,
+        channel: int = ChannelQueryParam,
+        ls: LakeshoreService = Depends(get_lakeshore_service)):
     return ls.get_status(request, channel)
 
 # @router.get("/id/{channel}/config")
