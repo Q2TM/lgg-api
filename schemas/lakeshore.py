@@ -9,7 +9,6 @@ class IdentificationResp(BaseModel):
     model: str = Field(..., alias="model")
     serial_number: str = Field(..., alias="serial number")
     firmware_version: str = Field(..., alias="firmware version")
-    modname: str | None = Field(None, alias="modname")
 
 
 class MonitorResp(BaseModel):

@@ -75,7 +75,6 @@ class MockModel240:
             "model": "Model240",
             "serial number": "12345",
             "firmware version": "1.0",
-            "modname": self.modname
         }
 
     def get_modname(self):
