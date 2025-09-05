@@ -64,9 +64,8 @@ def set_brightness(request: Request, brightness: int, ls: LakeshoreService = Dep
     return ls.set_brightness(request, brightness)
 
 
-# Missing endpoints that return 501 Not Implemented
-@router.delete("/factory-defaults")
-def set_factory_defaults():
-    """Reset to factory defaults - Not implemented"""
-    raise HTTPException(
-        status_code=501, detail="Factory reset not implemented")
+@router.delete("/factory-defaults", response_model=OperationResult)
+def set_factory_defaults(request: Request, ls: LakeshoreService = Depends(get_lakeshore_service)):
+    """Reset to factory defaults"""
+    ls.set_factory_defaults(request)
+    return OperationResult(is_success=True, message="Factory defaults restored")

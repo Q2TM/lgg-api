@@ -117,3 +117,10 @@ class LakeshoreService:
                 return {"message": "Curve data point updated"}
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
+
+    def set_factory_defaults(self, request: Request) -> None:
+        with request.app.state.lock:
+            try:
+                self.ls_repo.set_factory_defaults()
+            except Exception as e:
+                raise HTTPException(503, f"Factory reset failed: {e}")

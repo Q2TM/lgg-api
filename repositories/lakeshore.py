@@ -192,3 +192,7 @@ class LakeshoreRepository:
         device = self.get_device()
         device.set_curve_data_point(  # type: ignore
             channel, index, data_point.sensor, data_point.temperature)
+
+    def set_factory_defaults(self) -> None:
+        device = self.get_device()
+        device.set_factory_defaults()
