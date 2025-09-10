@@ -8,5 +8,6 @@ dependencies = [
     "autopep8>=2.3.2",
     "fastapi[standard]>=0.116.1",
     "lakeshore>=1.8.1",
+    "numpy>=2.3.3",
     "uvicorn>=0.35.0",
 ]

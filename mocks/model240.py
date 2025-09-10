@@ -1,8 +1,6 @@
-# type: ignore
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, List
 from lakeshore.model_240_enums import Model240Enums
-
+from mocks.curve_data import MockCurve, MockCurveHeader, MockRoomTempSensor
 # from lakeshore.model_240 import Model240InputParameter
 
 
@@ -16,13 +14,6 @@ class MockInputParameter:
     input_range: int
 
 
-@dataclass
-class MockCurveHeader:
-    curve_name: str
-    serial_number: str
-    curve_data_format: Model240Enums.CurveFormat
-    temperature_limit: float
-    coefficient: Model240Enums.Coefficients
 
 
 class MockModel240:
@@ -33,14 +24,12 @@ class MockModel240:
         self.connected = True
         self.modname = "Mock Model240"
         self.brightness = 50
-        self._sensor_names: Dict[int, str] = {
+        self._sensor_names: dict[int, str] = {
             i: f"Sensor {i}" for i in range(1, 9)}
-        self._filters: Dict[int, Optional[str]] = {
+        self._filters: dict[int, str | None] = {
             i: "No filter" for i in range(1, 9)}
-        self._readings: Dict[int, Tuple[float, float, float, float]] = {
-            i: (25.0, 77.0, 298.15, 100.0) for i in range(1, 9)
-        }  # (celsius, fahrenheit, kelvin, sensor)
-        self._input_params: Dict[int, MockInputParameter] = {
+        
+        self._input_params: dict[int, MockInputParameter] = {
             i: MockInputParameter(
                 sensor_type=Model240Enums.SensorTypes.NTC_RTD,
                 temperature_unit=Model240Enums.Units.KELVIN,
@@ -51,19 +40,11 @@ class MockModel240:
 
             ) for i in range(1, 9)
         }
-        self._curve_headers: Dict[int, MockCurveHeader] = {
-            i: MockCurveHeader(
-                curve_name=f"Curve {i}",
-                serial_number=f"SN{i}",
-                curve_data_format=Model240Enums.CurveFormat.VOLTS_PER_KELVIN,
-                temperature_limit=400.0,
-                coefficient=Model240Enums.Coefficients.NEGATIVE
-            ) for i in range(1, 9)
-        }
-        self._curve_data: Dict[int, List[Tuple[float, float]]] = {
-            i: [(j*0.1, j*1.0) for j in range(1, 201)] for i in range(1, 9)
-        }  # List of (sensor, temperature) pairs
-
+        
+        self.curve = MockCurve()
+        self.room_temp_sensor = MockRoomTempSensor(self.curve)
+        
+        
     def disconnect_usb(self):
         """Disconnect the mock device."""
         self.connected = False
@@ -100,7 +81,7 @@ class MockModel240:
         self._validate_channel(channel)
         self._sensor_names[channel] = name
 
-    def get_filter(self, channel: int) -> Optional[str]:
+    def get_filter(self, channel: int) -> str | None:
         """Get the filter setting for a channel."""
         self._validate_channel(channel)
         return self._filters[channel]
@@ -123,22 +104,22 @@ class MockModel240:
     def get_celsius_reading(self, channel: int) -> float:
         """Get temperature reading in Celsius."""
         self._validate_channel(channel)
-        return self._readings[channel][0]
+        return self.room_temp_sensor.get_reading(channel)[0]
 
     def get_fahrenheit_reading(self, channel: int) -> float:
         """Get temperature reading in Fahrenheit."""
         self._validate_channel(channel)
-        return self._readings[channel][1]
+        return self.room_temp_sensor.get_reading(channel)[1]
 
     def get_kelvin_reading(self, channel: int) -> float:
         """Get temperature reading in Kelvin."""
         self._validate_channel(channel)
-        return self._readings[channel][2]
+        return self.room_temp_sensor.get_reading(channel)[2]
 
     def get_sensor_reading(self, channel: int) -> float:
         """Get raw sensor reading."""
         self._validate_channel(channel)
-        return self._readings[channel][3]
+        return self.room_temp_sensor.get_reading(channel)[3]
 
     def get_channel_reading_status(self, channel: int):
         """Get channel reading status."""
@@ -155,19 +136,19 @@ class MockModel240:
     def get_curve_header(self, channel: int) -> MockCurveHeader:
         """Get curve header for a channel."""
         self._validate_channel(channel)
-        return self._curve_headers[channel]
+        return self.curve.header[channel]
 
     def set_curve_header(self, channel: int, header: MockCurveHeader):
         """Set curve header for a channel."""
         self._validate_channel(channel)
-        self._curve_headers[channel] = header
+        self.curve.header[channel] = header
 
     def get_curve_data_point(self, channel: int, index: int) -> str:
         """Get curve data point as 'sensor,temperature' string."""
         self._validate_channel(channel)
         if not 1 <= index <= 200:
             raise ValueError("Index must be between 1 and 200")
-        sensor, temp = self._curve_data[channel][index-1]
+        sensor, temp = self.curve.data[channel][index-1]
         return f"{sensor},{temp}"
 
     def set_curve_data_point(self, channel: int, index: int, sensor: float, temperature: float):
@@ -175,7 +156,7 @@ class MockModel240:
         self._validate_channel(channel)
         if not 1 <= index <= 200:
             raise ValueError("Index must be between 1 and 200")
-        self._curve_data[channel][index-1] = (sensor, temperature)
+        self.curve.data[channel][index-1] = (sensor, temperature)
 
     def _validate_channel(self, channel: int):
         """Validate channel number."""
