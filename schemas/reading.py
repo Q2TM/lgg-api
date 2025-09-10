@@ -5,8 +5,8 @@ from pydantic import BaseModel
 class MonitorResp(BaseModel):
     """Schema for the `/{channel}` endpoint."""
 
-    celsius: float
-    fahrenheit: float
+    # celsius: float
+    # fahrenheit: float
     kelvin: float
     sensor: float
 

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from routers import router_v1
-from repositories.lakeshore import LakeshoreRepository as ls
+from services.lakeshore import LakeshoreService as ls
 from exceptions.lakeshore import LakeshoreError
 
 app = FastAPI(

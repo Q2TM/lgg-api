@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from schemas.curve import CurveDataPoint, CurveHeader, IndexQueryParam
 from schemas.shared import ChannelQueryParam
+from schemas.operations import OperationResult
 from services.lakeshore import LakeshoreService
 from schemas.curve import CurveDataPoints
 from routers.dependencies import get_lakeshore_service
@@ -23,8 +24,9 @@ def set_curve_header(
     curve_header: CurveHeader,
     channel: int = ChannelQueryParam,
     ls: LakeshoreService = Depends(get_lakeshore_service)
-) -> dict[str, str]:
-    return ls.set_curve_header(request, curve_header, channel)
+) -> OperationResult:
+    ls.set_curve_header(request, curve_header, channel)
+    return OperationResult(is_success=True, message="Curve header updated successfully")
 
 
 @router.get("/{channel}/data-point/{index}", response_model=CurveDataPoint)
@@ -53,14 +55,16 @@ async def set_curve_data_point(
     channel: int = ChannelQueryParam,
     index: int = IndexQueryParam,
     ls: LakeshoreService = Depends(get_lakeshore_service)
-) -> dict[str, str]:
-    return ls.set_curve_data_point(request, data_point, channel, index)
+) -> OperationResult:
+    ls.set_curve_data_point(request, data_point, channel, index)
+    return OperationResult(is_success=True, message="Curve data point updated successfully")
 
 
 @router.delete("/{channel}")
 def delete_curve(
+    request: Request,
     channel: int = ChannelQueryParam,
     ls: LakeshoreService = Depends(get_lakeshore_service)
-) -> dict[str, str]:
-    """Delete user curve - Not implemented"""
-    raise HTTPException(status_code=501, detail="Delete curve not implemented")
+) -> OperationResult:
+    ls.delete_curve(request, channel)
+    return OperationResult(is_success=True, message="Curve deleted successfully")

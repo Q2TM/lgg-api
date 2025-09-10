@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
+from schemas.operations import OperationResult
 from schemas.reading import MonitorResp
 from schemas.shared import ChannelQueryParam
 from services.lakeshore import LakeshoreService
@@ -22,9 +23,9 @@ def set_input_config(
     request: Request,
     input_param: InputParameter,
     channel: int = ChannelQueryParam,
-    ls: LakeshoreService = Depends(get_lakeshore_service)
-) -> dict[str, str]:
-    return ls.set_input_config(request, input_param, channel)
+    ls: LakeshoreService = Depends(get_lakeshore_service)) -> OperationResult:
+    ls.set_input_config(request, input_param, channel)
+    return OperationResult(is_success=True, message="Input configuration updated successfully")
 
 
 @router.get("/monitor/{channel}", response_model=MonitorResp)
