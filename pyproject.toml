@@ -12,3 +12,8 @@ dependencies = [
     "numpy>=2.3.3",
     "uvicorn>=0.35.0",
 ]
+
+[dependency-groups]
+dev = [
+    "autopep8>=2.3.2",
+]
