@@ -20,10 +20,10 @@ def get_input_parameter(
 
 @router.put("/input/{channel}")
 def set_input_config(
-    request: Request,
-    input_param: InputParameter,
-    channel: int = ChannelQueryParam,
-    ls: LakeshoreService = Depends(get_lakeshore_service)) -> OperationResult:
+        request: Request,
+        input_param: InputParameter,
+        channel: int = ChannelQueryParam,
+        ls: LakeshoreService = Depends(get_lakeshore_service)) -> OperationResult:
     ls.set_input_config(request, input_param, channel)
     return OperationResult(is_success=True, message="Input configuration updated successfully")
 

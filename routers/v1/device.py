@@ -12,8 +12,8 @@ router = APIRouter(prefix="/device")
 def connect(ls: LakeshoreService = Depends(get_lakeshore_service)) -> OperationResult:
     ls.connect()
     return OperationResult(
-            is_success=True,
-            message="Connected to Lakeshore Model240"
+        is_success=True,
+        message="Connected to Lakeshore Model240"
     )
 
 

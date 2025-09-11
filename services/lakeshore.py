@@ -7,7 +7,7 @@ import os
 from constants.env import USE_MOCK
 from mocks.model240 import MockModel240
 
-from typing import Self, cast
+from typing import Self
 from collections.abc import AsyncGenerator
 from schemas.curve import CurveDataPoint, CurveHeader
 from schemas.curve import CurveDataPoints
@@ -68,7 +68,6 @@ class LakeshoreService:
             except Exception as e:
                 raise HTTPException(503, f"Connection failed: {e}")
 
-
     def get_device(self) -> Model240:
         """
         Get the connected Model240 device or raise an error if not connected.
@@ -107,7 +106,13 @@ class LakeshoreService:
         :rtype: IdentificationResp
         """
         device = self.get_device()
-        return IdentificationResp(**device.get_identification())
+        identification = device.get_identification()
+        return IdentificationResp(
+            manufacturer=identification['manufacturer'],
+            model=identification['model'],
+            serial_number=identification['serial number'],
+            firmware_version=identification['firmware version']
+        )
 
     def get_status(self, request: Request, channel: int) -> StatusResp:
         """
@@ -128,7 +133,14 @@ class LakeshoreService:
             raise ChannelError(channel)
         with request.app.state.lock:
             device = self.get_device()
-            return StatusResp(**device.get_channel_reading_status(channel))
+            status = device.get_channel_reading_status(channel)
+            return StatusResp(
+                invalid_reading=status['invalid reading'],
+                temp_under_range=status['temp under range'],
+                temp_over_range=status['temp over range'],
+                sensor_units_over_range=status['sensor units over range'],
+                sensor_units_under_range=status['sensor units under range']
+            )
 
     def get_modname(self, request: Request) -> str:
         """
@@ -258,7 +270,7 @@ class LakeshoreService:
     def get_monitor(self, request: Request, channel: int) -> MonitorResp:
         """
         Return the temperature readings (Kelvin, Ohm) for the specified channel.
-        
+
         :param self: LakeshoreService instance
         :param request: FastAPI request object
         :type request: Request
@@ -271,10 +283,10 @@ class LakeshoreService:
             raise ChannelError(channel)
         with request.app.state.lock:
             device = self.get_device()
-            # celsius = device.get_celsius_reading(channel)  
-            # farenheit = device.get_fahrenheit_reading(channel) 
-            kelvin = device.get_kelvin_reading(channel)  
-            sensor = device.get_sensor_reading(channel)   
+            # celsius = device.get_celsius_reading(channel)
+            # farenheit = device.get_fahrenheit_reading(channel)
+            kelvin = device.get_kelvin_reading(channel)
+            sensor = device.get_sensor_reading(channel)
             return MonitorResp(
                 kelvin=kelvin,
                 sensor=sensor
@@ -406,7 +418,7 @@ class LakeshoreService:
                     channel, index, data_point.sensor, data_point.temperature)
             except Exception as e:
                 raise HTTPException(503, f"Update failed: {e}")
-            
+
     def delete_curve(self, request: Request, channel: int) -> None:
         """
         Deletes the user curve.

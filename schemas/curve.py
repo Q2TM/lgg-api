@@ -1,9 +1,10 @@
 from fastapi import Path
 from lakeshore.model_240_enums import Model240Enums
-from pydantic import BaseModel, Field
+from pydantic import Field
+from fastapi_camelcase import CamelModel
 
 
-class CurveHeader(BaseModel):
+class CurveHeader(CamelModel):
     """Schema for the `/curve/{channel}/header` endpoint."""
 
     curve_name: str
@@ -13,19 +14,20 @@ class CurveHeader(BaseModel):
     coefficient: Model240Enums.Coefficients
 
 
-class CurveDataPoint(BaseModel):
+class CurveDataPoint(CamelModel):
     """Schema for the curve data points."""
 
     temperature: float
     sensor: float
 
 
-class CurveDataPoints(BaseModel):
+class CurveDataPoints(CamelModel):
     """Schema for the response containing multiple curve data points."""
 
     channel: int
-    temperatures: list[float] = Field(...,
-                                      description="List of temperature values")
+    temperatures: list[float] = Field(
+        ...,
+        description="List of temperature values")
     sensors: list[float] = Field(..., description="List of sensor values")
 
 

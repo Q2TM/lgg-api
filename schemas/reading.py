@@ -1,8 +1,8 @@
 from lakeshore.model_240_enums import Model240Enums
-from pydantic import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class MonitorResp(BaseModel):
+class MonitorResp(CamelModel):
     """Schema for the `/{channel}` endpoint."""
 
     # celsius: float
@@ -11,7 +11,7 @@ class MonitorResp(BaseModel):
     sensor: float
 
 
-class InputParameter(BaseModel):
+class InputParameter(CamelModel):
     """Schema for the `/input/{channel}` endpoint."""
 
     # Optional field for sensor name, can be None if not set
