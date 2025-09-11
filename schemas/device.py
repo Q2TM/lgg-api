@@ -3,7 +3,10 @@ from fastapi_camelcase import CamelModel
 
 
 class IdentificationResp(CamelModel):
-    """Schema for the `/id` endpoint."""
+    """Schema for device identification information.
+
+    Used by GET /identification endpoint to return device details.
+    """
 
     manufacturer: str = Field(...)
     model: str = Field(...)
@@ -12,14 +15,20 @@ class IdentificationResp(CamelModel):
 
 
 class Brightness(CamelModel):
-    """Schema for the brightness configuration."""
+    """Schema for device display brightness configuration.
+
+    Used by GET/PUT /brightness endpoints for brightness control.
+    """
 
     brightness: int = Field(..., ge=0, le=100,
                             description="Brightness level between 0 and 100")
 
 
 class StatusResp(CamelModel):
-    """Schema for the `/{channel}/status` endpoint."""
+    """Schema for device channel status information.
+
+    Used by GET /status/{channel} endpoint to return channel status flags.
+    """
 
     invalid_reading: bool = Field(...)
     temp_under_range: bool = Field(...)
