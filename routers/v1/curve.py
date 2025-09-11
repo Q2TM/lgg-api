@@ -9,7 +9,7 @@ from routers.dependencies import get_lakeshore_service
 router = APIRouter(prefix="/curve")
 
 
-@router.get("/{channel}/header", response_model=CurveHeader)
+@router.get("/{channel}/header", operation_id="getCurveHeader", response_model=CurveHeader)
 def get_curve_header(
     request: Request,
     channel: int = ChannelQueryParam,
@@ -18,7 +18,7 @@ def get_curve_header(
     return ls.get_curve_header(request, channel)
 
 
-@router.put("/{channel}/header")
+@router.put("/{channel}/header", operation_id="setCurveHeader")
 def set_curve_header(
     request: Request,
     curve_header: CurveHeader,
@@ -29,7 +29,8 @@ def set_curve_header(
     return OperationResult(is_success=True, message="Curve header updated successfully")
 
 
-@router.get("/{channel}/data-point/{index}", response_model=CurveDataPoint)
+@router.get("/{channel}/data-point/{index}",
+            operation_id="getCurveDataPoint", response_model=CurveDataPoint)
 def get_curve_data_point(
     request: Request,
     channel: int = ChannelQueryParam,
@@ -39,7 +40,7 @@ def get_curve_data_point(
     return ls.get_curve_data_point(request, channel, index)
 
 
-@router.get("/{channel}/data-points", response_model=CurveDataPoints)
+@router.get("/{channel}/data-points", operation_id="getAllCurveDataPoints", response_model=CurveDataPoints)
 def get_curve_data_points(
     request: Request,
     channel: int = ChannelQueryParam,
@@ -48,7 +49,7 @@ def get_curve_data_points(
     return ls.get_curve_data_points(request, channel)
 
 
-@router.put("/{channel}/data-point/{index}")
+@router.put("/{channel}/data-point/{index}", operation_id="setCurveDataPoint")
 async def set_curve_data_point(
     request: Request,
     data_point: CurveDataPoint,
@@ -60,7 +61,7 @@ async def set_curve_data_point(
     return OperationResult(is_success=True, message="Curve data point updated successfully")
 
 
-@router.delete("/{channel}")
+@router.delete("/{channel}", operation_id="deleteCurve")
 def delete_curve(
     request: Request,
     channel: int = ChannelQueryParam,

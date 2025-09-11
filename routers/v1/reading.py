@@ -9,7 +9,7 @@ from routers.dependencies import get_lakeshore_service
 router = APIRouter(prefix="/reading")
 
 
-@router.get("/input/{channel}", response_model=InputParameter)
+@router.get("/input/{channel}", operation_id="getInputParameter", response_model=InputParameter)
 def get_input_parameter(
     request: Request,
     channel: int = ChannelQueryParam,
@@ -18,7 +18,7 @@ def get_input_parameter(
     return ls.get_input_parameter(request, channel)
 
 
-@router.put("/input/{channel}")
+@router.put("/input/{channel}", operation_id="setInputParameter")
 def set_input_config(
         request: Request,
         input_param: InputParameter,
@@ -28,7 +28,7 @@ def set_input_config(
     return OperationResult(is_success=True, message="Input configuration updated successfully")
 
 
-@router.get("/monitor/{channel}", response_model=MonitorResp)
+@router.get("/monitor/{channel}", operation_id="getMonitor", response_model=MonitorResp)
 def get_monitor(
     request: Request,
     channel: int = ChannelQueryParam,
@@ -38,7 +38,7 @@ def get_monitor(
 
 
 # Missing endpoints that return 501 Not Implemented
-@router.get("/sensor-units/{channel}")
+@router.get("/sensor-units/{channel}", operation_id="getSensorUnits")
 def get_sensor_units_channel_reading(channel: int = ChannelQueryParam):
     """Get sensor units value - Not implemented (duplicate of get_sensor_reading)"""
     raise HTTPException(
