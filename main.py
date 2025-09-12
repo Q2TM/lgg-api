@@ -7,9 +7,9 @@ from services.lakeshore import LakeshoreService as ls
 from exceptions.lakeshore import LakeshoreError
 
 app = FastAPI(
-    title="Lakeshore Model240 API",
+    title="Lakeshore Management API",
     description="API for Lakeshore Model240 temperature controller",
-    version="1.0.0",
+    version="0.1.0",
     lifespan=ls.lifespan,
 )
 
